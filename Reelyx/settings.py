@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zrqx)bw5jab1vu+$ck!8&yx!4-78$+v0ha!krhka+r6(&k@d(w'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'Peliculas',
     'Listas',
+    'Reviews',
 ]
 AUTH_USER_MODEL = 'Users.CustomUser'
 
@@ -81,8 +83,17 @@ WSGI_APPLICATION = 'Reelyx.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD': os.environ.get('AIVEN_PASSWORD', ''),
+        'HOST': 'reelyx-84b40c5-estudiante-5448.l.aivencloud.com',
+        'PORT': '28908',
+        'OPTIONS': {
+            'ssl': {
+                'ca': BASE_DIR / 'ca.pem'
+            }
+        }
     }
 }
 
@@ -128,3 +139,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ADMIN_URL = 'admin'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'TU_CORREO@gmail.com'
+EMAIL_HOST_PASSWORD = 'TU_APP_PASSWORD_DE_GOOGLE'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')

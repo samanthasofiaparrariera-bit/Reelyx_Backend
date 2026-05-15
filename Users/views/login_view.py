@@ -2,32 +2,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate, login
+from Users.serializers import LoginSerializer
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get('email') or request.data.get('username')
-        password = request.data.get('password')
-
-        user = authenticate(request, username=email, password=password)
-
-        if user is not None:
-            login(request, user)
-
-
-            data = {
-                "email": user.email,
-                "nombre": user.nombre,
-                "is_staff": user.is_staff
-            }
-
-            return Response({"data": data, "Bienvenido": True}, status=status.HTTP_200_OK)
-
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
         else:
-            return Response(
-                {"data": "Usuario o contraseña incorrectos", "Bienvenido": False},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            errores = []
+            for clave, error in serializer.errors.items():
+                for err in error:
+                    errores.append(str(err))
+            return Response({"errors": errores}, status=status.HTTP_400_BAD_REQUEST)
+
+

@@ -27,4 +27,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
 
         user = CustomUser.objects.crear_usuario(password=password, **validated_data)
+        user.is_verified = False
+        user.save()
+
         return user

@@ -7,16 +7,26 @@ from django.core.validators import FileExtensionValidator
 class Pelicula(models.Model):
     name = models.CharField(max_length=70, blank=False, null=False)
     slug = models.SlugField(max_length=50, unique=True, blank=False, null=False)
-    rating = models.DecimalField(max_digits=2, decimal_places=2)
+    rating = models.DecimalField(max_digits=3, decimal_places=1)
     duration = models.DecimalField(max_digits=3, decimal_places=0)
     year = models.DecimalField(max_digits=4, decimal_places=0)
+    sinopsis = models.TextField(blank=True, default='')
     genre = models.CharField(max_length=50, blank=False, null=False,choices=[
         ('sci_fi', 'Sci-Fi'),
         ('romance', 'Romance'),
-        ('drama', 'Drama')
+        ('drama', 'Drama'),
+        ('accion', 'Acción'),
+        ('comedia', 'Comedia'),
+        ('terror', 'Terror'),
+        ('aventura', 'Aventura'),
+        ('fantasia', 'Fantasía'),
+        ('animacion', 'Animación'),
+        ('documental', 'Documental'),
+        ('musical', 'Musical'),
+        ('thriller', 'Thriller'),
     ])
     image = models.ImageField(upload_to="peliculas/", blank=False, null=False,
-                              validators=[FileExtensionValidator(['jpg', 'png'])])
+    validators=[FileExtensionValidator(['jpg', 'png'])])
 
 
     class Meta:

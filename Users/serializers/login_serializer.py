@@ -1,34 +1,40 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.models import User
-
+# Proyecto: Reelyx
+# Autora: Samantha Sofía Parra Riera
+# Descripción: Serializer encargado de validar el inicio de sesión.
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-    def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
+    email = serializers.EmailField(required=True, allow_blank=False)
+    password = serializers.CharField(required=True, allow_blank=False, min_length=5)
 
-        if email and password:
-            user = authenticate(username=email, password=password)
-            if user is None:
-                raise serializers.ValidationError("Email o contraseña incorrecta")
-        else:
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if email is None or password is None:
             raise serializers.ValidationError("Tienes que enviar el email y la contraseña")
 
+        # Comprobamos las credenciales que ha introducido el usuario
+        user = authenticate(username=email, password=password)
 
+        if not user:
+            raise serializers.ValidationError("Email o contraseña incorrecta")
+
+        # No se permite iniciar sesión hasta verificar el correo
+        if not user.is_verified:
+            raise serializers.ValidationError("Debes verificar tu correo antes de iniciar sesión")
+
+        # Generamos los tokens JWT para mantener la sesión iniciada
         refresh = RefreshToken.for_user(user)
 
-        return {'success': True,
-                'data':{
-                    'email': user.email,
-                    'nombre': user.nombre,
-
-                    'token': str(refresh.access_token),
-                    'refreshToken': str(refresh),
-                }
-
-
+        return {
+            "success": True,
+            "data": {
+                "email": user.email,
+                "nombre": user.nombre,
+                "token": str(refresh.access_token),
+                "refreshToken": str(refresh),
+            }
         }

@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/users/', include('Users.urls')),
     path('api/peliculas/', include('Peliculas.urls')),
     path('api/listas/', include('Listas.urls')),
+    path('api/reviews/', include('Reviews.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
